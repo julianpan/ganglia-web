@@ -1195,8 +1195,10 @@ function build_aggregate_graph_config ($graph_type,
             $label .= " $legend";
 	}
 
+        //$graph_config['series'][] = array ( "hostname" => $host_name , "clustername" => $cluster_name,
+          //"metric" => $m_name,  "color" => $conf['graph_colors'][$color_index], "label" => $label, "line_width" => $line_width, "type" => $graph_type);
         $graph_config['series'][] = array ( "hostname" => $host_name , "clustername" => $cluster_name,
-          "metric" => $m_name,  "color" => $conf['graph_colors'][$color_index], "label" => $label, "line_width" => $line_width, "type" => $graph_type);
+          "metric" => str_replace(".", "_", $m_name),  "color" => $conf['graph_colors'][$color_index], "label" => $label, "line_width" => $line_width, "type" => $graph_type);
 
         $counter++;
 
