@@ -425,11 +425,19 @@ function build_graphite_url($rrd_graphite_link,
   // storage/rrd_dir area
   if (! is_link($rrd_graphite_link)) {
     // Does the directory exist for the cluster. If not create it
-    if (! is_dir($conf['graphite_rrd_dir'] . "/" . 
-		 str_replace(" ", "_", $clustername)) )
-      mkdir($conf['graphite_rrd_dir'] . "/" . 
-	    str_replace(" ", "_", $clustername));
-    symlink($rrd_dir, str_replace(" ", "_", $rrd_graphite_link));
+    if ( ! is_dir ($conf['graphite_rrd_dir'] . "/" . str_replace(" ", "_", $clustername)) ) {
+        mkdir($conf['graphite_rrd_dir'] . "/" . str_replace(" ", "_", $clustername ));
+      }
+      if (!($host == null) && ! is_dir ($conf['graphite_rrd_dir'] . "/" . str_replace(" ", "_", $clustername) . "/" . $host) ) {
+        mkdir($conf['graphite_rrd_dir'] . "/" . str_replace(" ", "_", $clustername . "/" . $host));
+      }
+      $rrd_files = scandir($rrd_dir);
+      foreach ($rrd_files as $real_rrd_file) {
+        if ( !($real_rrd_file == ".") && !($real_rrd_file == "..")) {
+          symlink($rrd_dir . "/" . $real_rrd_file, str_replace(" ", "_", $rrd_graphite_link) . "/" . str_replace(".", "_", str_replace(".rrd", "", $real_rrd_file)) . ".rrd");
+        }
+      }
+    }
   }
   
   // Generate host cluster string
@@ -494,7 +502,7 @@ function build_graphite_url($rrd_graphite_link,
       // It's a simple metric graph
       $vlabel = isset($_GET["vl"]) ? sanitize($_GET["vl"])  : NULL;
       $target = "target=" . $conf['graphite_prefix'] . 
-	"$host_cluster.$metric_name.sum&hideLegend=true&vtitle=" . 
+	"$host_cluster.". str_replace(".", "_", $metric_name) . ".sum&hideLegend=true&vtitle=" . 
 	urlencode($vlabel) . 
 	"&areaMode=all&colorList=". $conf['default_metric_color'];
       $title = " ";
